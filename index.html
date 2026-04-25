@@ -688,8 +688,12 @@ function rstQ(qid){
 
 /* ── Enter ── */
 function ke(e,qid,isLast){
-  if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();doChk(qid);return;}
-  if(e.key==='Enter'&&!e.shiftKey&&isLast){e.preventDefault();doChk(qid);}
+  // Enter키: 어느 칸에서든 줄바꿈 없이 채점+정답 오픈
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    doChk(qid);
+    return;
+  }
 }
 function doChk(qid){chkAns(qid);openAns(qid);}
 
