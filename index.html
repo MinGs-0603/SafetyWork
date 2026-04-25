@@ -275,6 +275,139 @@ body{font-family:'Noto Sans KR',sans-serif;font-weight:300;background:var(--bg);
   color:var(--ink);
 }
 .tab-wrap{background:rgba(250,250,248,.96);}
+
+/* ════════════════════════════════════════════════
+   UX 고도화 CSS
+   ════════════════════════════════════════════════ */
+
+/* ── 1. 카드 오픈 시 카테고리 accent bar ── */
+.qc.op .card-left {
+  border-left: 3px solid var(--cat-accent, var(--ink));
+}
+.qc.op .card-body-layout {
+  border-top: none;
+}
+
+/* ── 2. 오답 shake 애니메이션 ── */
+@keyframes shakeIt {
+  0%,100%{transform:translateX(0);}
+  15%{transform:translateX(-5px);}
+  30%{transform:translateX(4px);}
+  45%{transform:translateX(-4px);}
+  60%{transform:translateX(3px);}
+  75%{transform:translateX(-2px);}
+  90%{transform:translateX(1px);}
+}
+.sub-ta.ng.shake, .ta.ng.shake {
+  animation: shakeIt 400ms cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* ── 3. 정답 flash 효과 ── */
+@keyframes correctFlash {
+  0%{background:rgba(30,122,78,.0);}
+  25%{background:rgba(30,122,78,.10);}
+  100%{background:rgba(30,122,78,.0);}
+}
+.qhdr.flash-ok {
+  animation: correctFlash 600ms ease both;
+}
+
+/* ── 4. textarea auto-grow (JS로 제어, CSS는 min-height만) ── */
+.ta, .sub-ta {
+  overflow: hidden;
+  transition: height 80ms ease, border-color var(--fast) var(--ease),
+              box-shadow var(--fast) var(--ease),
+              background var(--fast) var(--ease);
+}
+
+/* ── 5. 포커스 시 sub-label 색상 전환 ── */
+.sub-row:focus-within .sub-label:not(.blank),
+.sub-item-row:focus-within .sub-item-num,
+.sub-row:focus-within .cnt-label {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--ink-lt);
+  transition: all var(--fast) var(--ease);
+}
+
+/* ── 6. 탭 전환 페이드 ── */
+.main {
+  transition: opacity 150ms var(--ease);
+}
+.main.fading {
+  opacity: 0;
+}
+
+/* ── 7. 빈 상태 Empty State ── */
+.empty-state {
+  text-align: center;
+  padding: 80px 30px 60px;
+  color: var(--tx3);
+}
+.empty-state .es-icon {
+  font-size: 52px;
+  margin-bottom: 16px;
+  display: block;
+  filter: grayscale(20%);
+}
+.empty-state .es-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tx2);
+  margin-bottom: 8px;
+}
+.empty-state .es-desc {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--tx3);
+}
+
+/* ── 8. 카테고리별 accent 색상 변수 ── */
+.qc[data-cat="A"].op .card-left { border-left-color: var(--cA); }
+.qc[data-cat="B"].op .card-left { border-left-color: var(--cB); }
+.qc[data-cat="C"].op .card-left { border-left-color: var(--cC); }
+.qc[data-cat="D"].op .card-left { border-left-color: var(--cD); }
+.qc[data-cat="E"].op .card-left { border-left-color: var(--cE); }
+
+/* ── 9. 진행 bar 카운팅 애니메이션 ── */
+.sv {
+  transition: all 300ms var(--ease);
+}
+
+/* ── 10. 채점 결과 부분 정답 progress bar ── */
+.cr-bar-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(4px) scale(.95);
+  transition: all var(--med) var(--spring);
+}
+.cr-bar-wrap.show { opacity: 1; transform: translateY(0) scale(1); }
+.cr-bar {
+  width: 60px; height: 5px;
+  background: var(--tx4);
+  border-radius: 99px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.cr-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 400ms var(--ease) 100ms;
+}
+
+/* ── 11. 별표 버튼 호버 회전 ── */
+.sbtn:hover { transform: scale(1.25) rotate(15deg); }
+
+/* ── 12. 섹션 헤더 카운트 badge ── */
+.sec-cnt {
+  background: var(--bg2);
+  padding: 1px 8px;
+  border-radius: 99px;
+  font-weight: 500;
+}
 </style>
 </head>
 <body>
@@ -295,7 +428,18 @@ body{font-family:'Noto Sans KR',sans-serif;font-weight:300;background:var(--bg);
     </div>
     <div class="hstats">
       <div class="spill" id="sp-tot"><span>표시</span><span class="sv" id="sv-tot">179</span></div>
-      <div class="spill" id="sp-done"><span>확인</span><span class="sv" id="sv-done">0</span></div>
+      <div class="spill" id="sp-done">
+        <svg width="14" height="14" viewBox="0 0 14 14" style="flex-shrink:0">
+          <circle cx="7" cy="7" r="5.5" fill="none" stroke="var(--tx4)" stroke-width="2"/>
+          <circle id="prog-circle" cx="7" cy="7" r="5.5" fill="none"
+            stroke="var(--ink)" stroke-width="2"
+            stroke-dasharray="34.6" stroke-dashoffset="34.6"
+            stroke-linecap="round"
+            transform="rotate(-90 7 7)"
+            style="transition:stroke-dashoffset 400ms ease"/>
+        </svg>
+        <span>확인</span><span class="sv" id="sv-done">0</span>
+      </div>
       <div class="spill" id="sp-star"><span>★</span><span class="sv" id="sv-star">0</span></div>
     </div>
   </div>
@@ -472,7 +616,15 @@ function rstSec(cat){
 /* ── 렌더 ── */
 function render(){
   const V=vis();const con=gi('main');
-  if(!V.length){con.innerHTML='<div class="nores">검색 결과 없음</div>';upAll();return;}
+  if(!V.length){
+    const tab=curTab==='var'?'변형':'기출';
+    con.innerHTML=`<div class="empty-state">
+      <span class="es-icon">📭</span>
+      <div class="es-title">표시할 ${tab}문제가 없습니다</div>
+      <div class="es-desc">필터 조건을 변경하거나<br>다른 탭을 확인해보세요</div>
+    </div>`;
+    upAll();return;
+  }
   let html='',lastCat=null;
   V.forEach((q,idx)=>{
     const c=CAT[q.cat]||{n:q.cat,i:'',c:'#888',l:'#f5f5f5'};
@@ -489,7 +641,7 @@ function render(){
     }
     html+=buildCard(q,idx+1);
   });
-  con.innerHTML=html;upAll();
+  con.innerHTML=html;upAll();requestAnimationFrame(initAutoGrow);
 }
 
 /* ── q_text 렌더링 (표 포함 가능) ── */
@@ -563,7 +715,7 @@ function buildCard(q,n){
   const inputHtml=buildInput(q,subs,sg);
   const ansHtml=buildAns(q,subs,sg);
 
-  return`<div class="qc${opCls}${sCls}" id="C${q.id}">
+  return`<div class="qc${opCls}${sCls}" id="C${q.id}" data-cat="${q.cat}">
     <div class="qhdr" onclick="togCard('${q.id}')">
       <div class="qnum" style="background:${c.c}">${n}</div>
       <div class="qcat" style="background:${c.l};color:${c.c};border-color:${c.c}33">${c.i} ${c.n}</div>
@@ -609,11 +761,11 @@ function buildInput(q,subs,sg){
       for(let ci=0;ci<cnt;ci++)
         h+=`<div class="sub-row"><div class="sub-label cnt-label">${ci+1}</div>
           <textarea class="sub-ta" id="sub_${q.id}_0_${ci}" rows="1"
-            oninput="sv()" onkeydown="ke(event,'${q.id}',${ci===cnt-1})"></textarea></div>`;
+            oninput="sv();autoGrow(this)" onkeydown="ke(event,'${q.id}',${ci===cnt-1})"></textarea></div>`;
       return h+'</div>';
     }
     return `<textarea class="ta" id="ta_${q.id}" rows="2" placeholder="답안을 입력하세요..."
-      oninput="sv()" onkeydown="ke(event,'${q.id}',true)"></textarea>`;
+      oninput="sv();autoGrow(this)" onkeydown="ke(event,'${q.id}',true)"></textarea>`;
   }
   let h='<div class="sub-inputs">';
   subs.forEach((sub,i)=>{
@@ -626,14 +778,14 @@ function buildInput(q,subs,sg){
         const il=isLast&&ci===cnt-1;
         h+=`<div class="sub-item-row"><div class="sub-item-num">${ci+1}</div>
           <textarea class="sub-ta" id="sub_${q.id}_${i}_${ci}" rows="1"
-            oninput="sv()" onkeydown="ke(event,'${q.id}',${il})"></textarea></div>`;
+            oninput="sv();autoGrow(this)" onkeydown="ke(event,'${q.id}',${il})"></textarea></div>`;
       }
       h+='</div></div>';
     }else{
       const lblCls=isBlank?'sub-label blank':'sub-label';
       h+=`<div class="sub-row"><div class="${lblCls}">${sub.label||(i+1)}</div>
         <textarea class="sub-ta" id="sub_${q.id}_${i}_0" rows="1"
-          oninput="sv()" onkeydown="ke(event,'${q.id}',${isLast})"></textarea></div>`;
+          oninput="sv();autoGrow(this)" onkeydown="ke(event,'${q.id}',${isLast})"></textarea></div>`;
     }
   });
   return h+'</div>';
@@ -747,6 +899,10 @@ function chkAns(qid){
     const s=al.length>1?bms(val,al):sim(val,ansStr);
     const ok=s>=THR;
     el?.classList.toggle('ok',ok);el?.classList.toggle('ng',!ok);
+    if(!ok && el?.value?.trim()){
+      el.classList.add('shake');
+      setTimeout(()=>el?.classList.remove('shake'), 450);
+    }
     if(ok)cor++;
   }
   if(sg){
@@ -759,7 +915,11 @@ function chkAns(qid){
         let bs=0,bi=-1;
         al.forEach((l,i)=>{if(used.has(i))return;const s=sim(val,l);if(s>bs){bs=s;bi=i;}});
         const ok=bs>=THR;if(ok&&bi>=0)used.add(bi);
-        el?.classList.toggle('ok',ok);el?.classList.toggle('ng',!ok);if(ok)cor++;
+        el?.classList.toggle('ok',ok);el?.classList.toggle('ng',!ok);
+    if(!ok && el?.value?.trim()){
+      el.classList.add('shake');
+      setTimeout(()=>el?.classList.remove('shake'), 450);
+    }if(ok)cor++;
       }
     }else chkEl(gi('ta_'+qid),sa[0]||'');
   }else{
@@ -773,7 +933,11 @@ function chkAns(qid){
           let bs=0,bi=-1;
           al.forEach((l,idx)=>{if(used.has(idx))return;const s=sim(val,l);if(s>bs){bs=s;bi=idx;}});
           const ok=bs>=THR;if(ok&&bi>=0)used.add(bi);
-          el?.classList.toggle('ok',ok);el?.classList.toggle('ng',!ok);if(ok)cor++;
+          el?.classList.toggle('ok',ok);el?.classList.toggle('ng',!ok);
+    if(!ok && el?.value?.trim()){
+      el.classList.add('shake');
+      setTimeout(()=>el?.classList.remove('shake'), 450);
+    }if(ok)cor++;
         }
       }else chkEl(gi(`sub_${qid}_${i}_0`),as);
     });
@@ -785,11 +949,28 @@ function chkAns(qid){
     if(all){icon='✓';cls='aok';}
     else if(cor>0){icon='△';cls='part';}
     else{icon='✗';cls='ang';}
-    cr.textContent=tot===1?(all?`${icon} 정답`:`${icon} 오답`):`${icon} ${cor}/${tot} (${pct}%)`;
-    cr.className=`cr show ${cls}`;
+    if(tot===1){
+      cr.textContent=all?`${icon} 정답`:`${icon} 오답`;
+      cr.className=`cr show ${cls}`;
+    }else{
+      // 부분정답 bar 렌더링
+      const fillColor=all?'var(--ok)':cor>0?'var(--star)':'var(--ng)';
+      const fillW=Math.round(cor/tot*100);
+      cr.innerHTML=`<span>${icon} ${cor}/${tot}</span>
+        <span class="cr-bar"><span class="cr-bar-fill" style="width:0%;background:${fillColor}"></span></span>`;
+      cr.className=`cr show cr-bar-wrap ${cls}`;
+      // 바 애니메이션
+      requestAnimationFrame(()=>{
+        const fill=cr.querySelector('.cr-bar-fill');
+        if(fill) fill.style.width=fillW+'%';
+      });
+    }
     if(all){
       const c=gi('C'+qid);c?.classList.add('all-correct','pop-ok');
       setTimeout(()=>c?.classList.remove('pop-ok'),400);
+      // 헤더 flash
+      const hdr=c?.querySelector('.qhdr');
+      if(hdr){hdr.classList.add('flash-ok');setTimeout(()=>hdr?.classList.remove('flash-ok'),650);}
     }
   }
   save();return cor/Math.max(tot,1);
@@ -842,6 +1023,14 @@ function upAll(){
   const starred=Object.values(S).filter(s=>s?.starred).length;
   const V=vis();
   gi('prog').style.width=Math.round(seen/QS.length*100)+'%';
+  // 원형 진행
+  const circle=gi('prog-circle');
+  if(circle){
+    const pct=QS.length>0?seen/QS.length:0;
+    const dash=34.6;
+    circle.setAttribute('stroke-dashoffset', (dash*(1-pct)).toFixed(2));
+    circle.setAttribute('stroke', seen>0?'var(--ink)':'var(--tx4)');
+  }
   gi('sv-tot').textContent=V.length;gi('sv-done').textContent=seen;gi('sv-star').textContent=starred;
   gi('sp-done')?.classList.toggle('lit',seen>0);gi('sp-star')?.classList.toggle('lit',starred>0);
 }
@@ -865,17 +1054,39 @@ function switchTab(tab, btn) {
   LS = tab === 'orig' ? LS_ORIG : LS_VAR;
   S = {}; RV = {};
   const saved = load();
-  render();
-  setTimeout(() => restore(saved), 50);
+  // 탭 전환 fade
+  const main = gi('main');
+  main.classList.add('fading');
+  setTimeout(() => {
+    render();
+    main.classList.remove('fading');
+    setTimeout(() => { restore(saved); initAutoGrow(); }, 50);
+  }, 140);
 }
 
 function gi(id){return document.getElementById(id);}
 function qs(sel){return document.querySelector(sel);}
 function qsa(sel){return document.querySelectorAll(sel);}
 function E(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ── textarea auto-grow ── */
+function autoGrow(el) {
+  if(!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 34) + 'px';
+}
+function initAutoGrow() {
+  qsa('textarea').forEach(ta => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(ta.scrollHeight, ta.rows*22) + 'px';
+    ta.addEventListener('input', () => autoGrow(ta));
+  });
+}
+
 function sv(){clearTimeout(_t);_t=setTimeout(save,600);}
 
-const _saved=load();render();setTimeout(()=>restore(_saved),50);
+const _saved=load();render();
+setTimeout(()=>{restore(_saved);initAutoGrow();},50);
 </script>
 </body>
 </html>
